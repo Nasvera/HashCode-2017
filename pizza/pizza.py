@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import random
+
 from collections import namedtuple
 
 point = namedtuple('Point', ['x', 'y'])
@@ -33,13 +35,35 @@ def get_zeros_and_ones(rect, pizza):
     zeros = get_area(rect) - ones
     return zeros, ones
 
-def valid(rect, pizza, l, h):
+def isvalid(rect, pizza, l, h):
     if get_area(rect) > h:
         return False
     zeros, ones = get_zeros_and_ones(rect, pizza)
     if (zeros < l) or (ones < l):
         return False
     return True
+
+def generate_initial_points(pizza, l, h, rect):
+    print(rect)
+    if isvalid(rect, pizza, l, h):
+        return [rect]
+    elif get_area(rect) < h:
+        return []
+    (x_min, y_min), (x_max, y_max) = rect
+    length = x_max - x_min
+    width = y_max - y_min
+    vertical_cut = (random.random() > ((width-1)/(width+length-2)))
+    if vertical_cut:
+        cut_point = random.randint(x_min, x_max-1)
+        up_point = rectangle(point(x_min, y_min), point(cut_point, y_max))
+        down_point = rectangle(point(cut_point+1, y_min), point(x_max, y_max))
+    else:
+        cut_point = random.randint(y_min, y_max-1)
+        up_point = rectangle(point(x_min, y_min), point(x_max, cut_point))
+        down_point = rectangle(point(x_min, cut_point+1), point(x_max, y_max))
+    ret = generate_initial_points(pizza, l, h, up_point) + generate_initial_points(pizza, l, h, down_point)
+    return ret
+
 
 def main():
     p, l, h = parse()
@@ -51,7 +75,13 @@ def main():
         print(i)
     print()
     rect = rectangle(point(1, 2), point(2, 3))
-    print(rect, get_area(rect), get_zeros_and_ones(rect, ps), valid(rect, ps, l, h))
+    print(rect, get_area(rect), get_zeros_and_ones(rect, ps), isvalid(rect, ps, l, h))
+    points = generate_initial_points(ps, l, h, rectangle(point(0, 0), point(len(p)-1, len(p[0])-1)))
+    points.sort()
+    print()
+    for poi in points:
+        print(poi)
     #output([((1,2),(3,4))])
+    print(sum(get_area(poi) for poi in points))
 
 if __name__ == '__main__': main()
