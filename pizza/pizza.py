@@ -13,15 +13,20 @@ def score(d):
     return sum((abs(r2-r1)+1)*(abs(c2-c1)+1) for (r1,c1),(r2,c2) in d)
 
 def psum(p):
-    #for r in range(len(p)+1):
-        #for c in range(len(p[0])+1):
-    pass
+    ps = [[0]*(len(p[0])+1) for _ in range(len(p)+1)]
+    for r in range(len(p)):
+        for c in range(len(p[0])):
+            ps[r+1][c+1] = p[r][c] + ps[r][c+1] + ps[r+1][c] - ps[r][c]
+    return ps
 
 def valid():
     pass
 
 def main():
     p, l, h = parse()
-    output([((1,2),(3,4))])
+    ps = psum(p)
+    print(p)
+    print(ps)
+    #output([((1,2),(3,4))])
 
 if __name__ == '__main__': main()
