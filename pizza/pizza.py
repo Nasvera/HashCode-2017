@@ -29,7 +29,7 @@ def get_area(rect):
 
 def get_zeros_and_ones(rect, pizza):
     up_left, down_right = rect
-    ones = pizza[down_right.x+1][down_right.y+1] - pizza[up_left.x][up_left.y+1] - pizza[up_left.x+1][up_left.y] + pizza[up_left.x][up_left.y]
+    ones = pizza[down_right.x+1][down_right.y+1] - pizza[up_left.x][down_right.y+1] - pizza[down_right.x+1][up_left.y] + pizza[up_left.x][up_left.y]
     zeros = get_area(rect) - ones
     return zeros, ones
 
@@ -44,8 +44,12 @@ def valid(rect, pizza, l, h):
 def main():
     p, l, h = parse()
     ps = psum(p)
-    print(p)
-    print(ps)
+    for i in p:
+        print(i)
+    print()
+    for i in ps:
+        print(i)
+    print()
     rect = rectangle(point(1, 2), point(2, 3))
     print(rect, get_area(rect), get_zeros_and_ones(rect, ps), valid(rect, ps, l, h))
     #output([((1,2),(3,4))])
