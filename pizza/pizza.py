@@ -4,8 +4,8 @@ import random
 
 from collections import namedtuple
 
-point = namedtuple('Point', ['x', 'y'])
-rectangle = namedtuple('Rectangle', ['up_left', 'down_right'])
+Rectangle = namedtuple('Rectangle', ['x_min', 'x_max', 'y_min', 'y_max'])
+
 
 def parse():
     r, _, l, h = map(int, input().split())
@@ -14,7 +14,7 @@ def parse():
 
 def output(d):
     print(len(d))
-    for (r1,c1),(r2,c2) in d: print(r1, c1, r2, c2)
+    for (r1,c1,r2,c2) in d: print(r1, c1, r2, c2)
 
 def score(d):
     return sum(get_area(rect) for rect in d)
@@ -27,11 +27,10 @@ def psum(p):
     return ps
 
 def get_area(rect):
-    return (abs(rect.up_left.x - rect.down_right.x) + 1) * (abs(rect.up_left.y - rect.down_right.y) + 1)
+    return (abs(rect.x_max - rect.x_min) + 1) * (abs(rect.y_max - rect.y_min) + 1)
 
 def get_zeros_and_ones(rect, pizza):
-    up_left, down_right = rect
-    ones = pizza[down_right.x+1][down_right.y+1] - pizza[up_left.x][down_right.y+1] - pizza[down_right.x+1][up_left.y] + pizza[up_left.x][up_left.y]
+    ones = pizza[rect.x_max+1][rect.y_max+1] - pizza[rect.x_min][rect.y_max+1] - pizza[rect.x_max+1][rect.y_min] + pizza[rect.x_min][rect.y_min]
     zeros = get_area(rect) - ones
     return zeros, ones
 
@@ -46,21 +45,23 @@ def isvalid(rect, pizza, l, h):
 def generate_initial_points(pizza, l, h, rect):
     print(rect)
     if isvalid(rect, pizza, l, h):
+        print("Valid")
         return [rect]
     elif get_area(rect) < h:
+        print("Invalid")
         return []
-    (x_min, y_min), (x_max, y_max) = rect
+    (x_min, x_max, y_min, y_max) = rect
     length = x_max - x_min
     width = y_max - y_min
     vertical_cut = (random.random() > ((width-1)/(width+length-2)))
     if vertical_cut:
         cut_point = random.randint(x_min, x_max-1)
-        up_point = rectangle(point(x_min, y_min), point(cut_point, y_max))
-        down_point = rectangle(point(cut_point+1, y_min), point(x_max, y_max))
+        up_point = Rectangle(x_min, cut_point, y_min, y_max)
+        down_point = Rectangle(cut_point+1, x_max, y_min, y_max)
     else:
         cut_point = random.randint(y_min, y_max-1)
-        up_point = rectangle(point(x_min, y_min), point(x_max, cut_point))
-        down_point = rectangle(point(x_min, cut_point+1), point(x_max, y_max))
+        up_point = Rectangle(x_min, x_max, y_min, cut_point)
+        down_point = Rectangle(x_min, x_max, cut_point+1, y_max)
     ret = generate_initial_points(pizza, l, h, up_point) + generate_initial_points(pizza, l, h, down_point)
     return ret
 
@@ -74,9 +75,9 @@ def main():
     for i in ps:
         print(i)
     print()
-    rect = rectangle(point(1, 2), point(2, 3))
+    rect = Rectangle(1, 2, 2, 3)
     print(rect, get_area(rect), get_zeros_and_ones(rect, ps), isvalid(rect, ps, l, h))
-    points = generate_initial_points(ps, l, h, rectangle(point(0, 0), point(len(p)-1, len(p[0])-1)))
+    points = generate_initial_points(ps, l, h, Rectangle(0, len(p)-1, 0, len(p[0])-1))
     points.sort()
     print()
     for poi in points:
